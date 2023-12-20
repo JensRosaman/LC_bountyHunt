@@ -10,8 +10,9 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using BepInEx.Logging;
 using Unity.Netcode;
-using bountyHunt.matrix;
+using bountyHunt.misc;
 using LethalLib;
+
 
 namespace bountyHunt.Patches
 {
@@ -73,11 +74,13 @@ namespace bountyHunt.Patches
             [HarmonyPostfix]
             static void on_kill(ref PlayerControllerB __instance)
             {
-                if (__instance.isCrouching)
+                /*if (__instance.isCrouching)
                 {
                     hitCount += 1;
                     logger.LogInfo("Hitcount updated");
-                }
+                }*/
+                hitCount += 1;
+                logger.LogInfo("Hitcount updated");
             }
         }
         

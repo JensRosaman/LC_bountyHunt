@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-namespace bountyHunt.matrix;
+namespace bountyHunt.misc;
 using System.IO;
 using System.Text;
 
