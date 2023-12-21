@@ -5,13 +5,13 @@ using HarmonyLib;
 using UnityEngine;
 using bountyHunt.misc;
 using System.Reflection;
-
+using UnityEngine;
 namespace bountyHunt.Patches;
 
 public class Akbar : MonoBehaviour
 {
     private static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("YourPatchClass");
-    private static bool vestActive = false;
+    private static bool vestActive = true;
     
     
     [HarmonyPatch(typeof(PlayerControllerB))]
@@ -20,21 +20,19 @@ public class Akbar : MonoBehaviour
         
         private static Explosion bomb;
        // private static readonly FieldInfo mineActivated = AccessTools.Field(typeof(Landmine), "mineActivated");
-        public static bool spawnExplosionTriggred = false;
-
-        //[HarmonyPatch(nameof(PlayerControllerB.DamagePlayer))]
-        [HarmonyPatch("Update")]
+        [HarmonyPatch(nameof(PlayerControllerB.DamagePlayer))]
+        //[HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void spawn_explosion_on_death(ref PlayerControllerB __instance)
         {
-            if (__instance.isCrouching)
+            /*if (__instance.isCrouching)
             {
                 vestActive = true;
             }
             else
             {
                 vestActive = false;
-            }
+            }*/
             if (vestActive)
             {
                 try
@@ -55,7 +53,8 @@ public class Akbar : MonoBehaviour
                     
                     if (bomb != null)
                     {
-                        bomb.Detonate(__instance.gameObject.transform.position + Vector3.up);
+                        bomb.TriggerMineOnLocalClientByExiting();
+                        bomb.Detonate(__instance.gameObject.transform.position + Vector3.up, spawnExplosionEffect:true);
                        // spawnExplosionTriggred = true;
                         /*mineActivated.SetValue(obj: _landmine, value: true);
                         MethodInfo TriggerMineOnLocalClientByExiting = typeof(Landmine).GetMethod("TriggerMineOnLocalClientByExiting", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -75,14 +74,30 @@ public class Akbar : MonoBehaviour
                     
                 }
 
-                spawnExplosionTriggred = false;
+                
             }
 
+        }
+        
+       // [HarmonyPatch(typeof(GameController))]
+        [HarmonyPatch("HandleButtonPress")]
+        public static class CustomButtonPressPatch
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                if (Input.GetButtonDown("CustomButton"))
+                {
+                    // Your custom functionality here
+                    Debug.Log("Custom button pressed!");
+                }
+            }
         }
     }
     
 
   
+   /*
    [HarmonyPatch(typeof(Landmine))]
    internal class LandmineSkips
    {
@@ -129,7 +144,7 @@ public class Akbar : MonoBehaviour
            
            return true;
        }
-   }
+   }*/
   
 }
 

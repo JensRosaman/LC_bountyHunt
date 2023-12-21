@@ -48,11 +48,8 @@ public class Explosion : NetworkBehaviour, IHittable
 			
 		}
 	}
-
-
-
 	
-	private void TriggerMineOnLocalClientByExiting()
+	public void TriggerMineOnLocalClientByExiting()
 	{
 		
 		
@@ -112,8 +109,7 @@ public class Explosion : NetworkBehaviour, IHittable
 	{
 		hasExploded = true;
 	}
-
-
+	
 	public void Detonate(Vector3 explosionPosition, bool spawnExplosionEffect = false, float killRange = 1f, float damageRange = 1f)
 	{
 		SpawnExplosion(explosionPosition, spawnExplosionEffect ,    1f,  1f);
@@ -121,7 +117,7 @@ public class Explosion : NetworkBehaviour, IHittable
 
 	public static void SpawnExplosion(Vector3 explosionPosition, bool spawnExplosionEffect = false, float killRange = 1f, float damageRange = 1f)
 	{
-		Debug.Log("Spawning explosion at pos: {explosionPosition}");
+		Debug.Log($"Spawning explosion at pos: {explosionPosition.ToString()}");
 		if (spawnExplosionEffect)
 		{
 			Object.Instantiate(StartOfRound.Instance.explosionPrefab, explosionPosition, Quaternion.Euler(-90f, 0f, 0f), RoundManager.Instance.mapPropsContainer.transform).SetActive(value: true);
@@ -196,7 +192,7 @@ public class Explosion : NetworkBehaviour, IHittable
 		return !Physics.Linecast(base.transform.position, pos, out hit, 256);
 	}
 
-	void IHittable.Hit(int force, Vector3 hitDirection, PlayerControllerB playerWhoHit = null, bool playHitSFX = false)
+	void IHittable.Hit(int force, Vector3 hitDirection, PlayerControllerB playerWhoHit, bool playHitSFX)
 	{
 		SetOffMineAnimation();
 		sendingExplosionRPC = true;

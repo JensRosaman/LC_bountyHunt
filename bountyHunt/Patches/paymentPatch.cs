@@ -16,13 +16,13 @@ using LethalLib;
 
 namespace bountyHunt.Patches
 {
-    class NetworkSync : NetworkBehaviour
+    class NetworkSync : NetworkManager
     {
         public static NetworkSync network;
         private void Start()
         {
 
-            NetworkSync.network = this;
+            network = this;
 
         }
               
@@ -41,26 +41,18 @@ namespace bountyHunt.Patches
     }
     class Patches
     {
-        private static Dictionary<PlayerControllerB, int> playerDict = new Dictionary<PlayerControllerB, int>();
         private static int hitCount { get; set; }
         private static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("YourPatchClass");
+        private static Terminal _terminal;
         [HarmonyPatch(typeof(EnemyAI))]
-        internal class enemyHitPatch
+        internal class EnemyHitPatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("HitEnemy")]
-            private static void PrefixHitEnemy(ref int force,ref PlayerControllerB playerWhoHit, ref bool playHitSFX)
+            private static void PrefixHitEnemy()
             {
-                hitCount += 1;
-                logger.LogInfo("Hitcount updated");
-                if (playerDict.ContainsKey(playerWhoHit))
-                {
-                    playerDict[playerWhoHit] += 1;
-                }
-                else
-                {
-                    playerDict.Add(playerWhoHit, 1);
-                }
+                PayOutCredits();
+                
             }
         }
         
@@ -102,12 +94,8 @@ namespace bountyHunt.Patches
                     node.clearPreviousText = true;
                     if (hitCount > 0)//playerDict.Count > 0
                     {
-                        NetworkSync network = new NetworkSync();
+                       PayOutCredits();
                         node.displayText = "credits succesfully payed out"; 
-                         //(__instance.groupCredits += (hitCount * 10);
-                         
-                        NetworkSync.SyncCreditsServerRpc(hitCount * 10);
-                        logger.LogInfo("paying out creds");
                     }
                     __result = node;
                 }
@@ -148,6 +136,16 @@ namespace bountyHunt.Patches
                 }
                 
             }
+        }
+
+        static void PayOutCredits()
+        {
+            if (_terminal == null)
+            {
+                _terminal = GameObject.Find("TerminalScript").GetComponent<Terminal>();
+            }
+            _terminal.SyncGroupCreditsClientRpc(_terminal.groupCredits + 100,_terminal.numberOfItemsInDropship);
+            logger.LogInfo("Hitcount updated");
         }
     }
 }
