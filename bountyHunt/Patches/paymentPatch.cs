@@ -16,7 +16,7 @@ using LethalLib;
 
 namespace bountyHunt.Patches
 {
-    class NetworkSync : NetworkManager
+    /*class NetworkSync : NetworkManager
     {
         public static NetworkSync network;
         private void Start()
@@ -38,12 +38,71 @@ namespace bountyHunt.Patches
             Terminal terminal = GameObject.Find("TerminalScript").GetComponent<Terminal>();
             terminal.groupCredits = newCredits;
         }
-    }
-    class Patches
+    }*/
+    
+   internal class Patches
     {
         private static int hitCount { get; set; }
-        private static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("YourPatchClass");
+        private static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("BountyHunt");
         private static Terminal _terminal;
+        private static int creditMultiplier = 10;
+
+
+        static Patches()
+        {
+            TerminalAPI.AddNewCommand("calcdet",calcDet);
+            TerminalAPI.AddNewCommand("payCreds",payCreds);
+        }
+
+        public static TerminalNode calcDet(string[] words)
+        {
+            TerminalNode node = ScriptableObject.CreateInstance<TerminalNode>();
+            string path;
+            if (words.Length >= 2)
+            {
+                path = words[1];
+                Matrix matrix = new Matrix(path: path);
+                node.displayText = matrix.calc_det().ToString();
+                node.clearPreviousText = true;
+
+                return node;
+            }
+        
+            path = @"C:\Users\olive\Desktop\";
+
+
+            string displayText;
+
+            try
+            {
+                Matrix matrix = new Matrix(path: path);
+                displayText = matrix.calc_det().ToString();
+            }
+            catch (Exception ex)
+            {
+                displayText =  $"Error when calculating det: {ex.Message}";;
+            }
+            
+            node.displayText = displayText;
+            node.clearPreviousText = true;
+            return node;
+            
+        }
+
+        public static TerminalNode payCreds(string[] words)
+        {
+            TerminalNode node = ScriptableObject.CreateInstance<TerminalNode>();
+            node.displayText = "No hits done";
+            node.clearPreviousText = true;
+            if (hitCount > 0)//playerDict.Count > 0
+            {
+                TerminalAPI.AddCredits(creditMultiplier * hitCount);
+                node.displayText = "credits succesfully payed out"; 
+            }
+            return node;
+        }
+        
+        
         [HarmonyPatch(typeof(EnemyAI))]
         internal class EnemyHitPatch
         {
@@ -51,7 +110,8 @@ namespace bountyHunt.Patches
             [HarmonyPatch("HitEnemy")]
             private static void PrefixHitEnemy()
             {
-                PayOutCredits();
+                
+                TerminalAPI.AddCredits(creditMultiplier * hitCount);
                 
             }
         }
@@ -74,78 +134,6 @@ namespace bountyHunt.Patches
                 hitCount += 1;
                 logger.LogInfo("Hitcount updated");
             }
-        }
-        
-        [HarmonyPatch(typeof(Terminal))]
-        internal class PaymentPatch : NetworkBehaviour
-        {
-            
-            [HarmonyPostfix]
-            [HarmonyPatch("ParsePlayerSentence")]
-            private static void CustomParser(ref Terminal __instance, ref TerminalNode __result)
-            {
-                string text = __instance.screenText.text.Substring(__instance.screenText.text.Length - __instance.textAdded);
-                string[] words = text.Split(' ');
-                TerminalNode node = ScriptableObject.CreateInstance<TerminalNode>();
-                if (text.ToLower() == "bounty" || text.ToLower() == "bög")
-                {
-                    
-                    node.displayText = "No hits done";
-                    node.clearPreviousText = true;
-                    if (hitCount > 0)//playerDict.Count > 0
-                    {
-                       PayOutCredits();
-                        node.displayText = "credits succesfully payed out"; 
-                    }
-                    __result = node;
-                }
-                
-                else if (words.Length > 0 && ( words[0].ToLower() == "calcDet" || words[0].ToLower() == "det"))
-                {
-                    string path;
-                    if (words.Length >= 2)
-                    {
-                        path = words[1];
-                        Matrix matrix = new Matrix(path: path);
-                        node.displayText = matrix.calc_det().ToString();
-                        node.clearPreviousText = true;
-                        __result = node;
-                    }
-                    else
-                    {
-                        path = @"C:\Users\olive\Desktop\";
-
-
-                        string displayText;
-
-                        try
-                        {
-                            Matrix matrix = new Matrix(path: path);
-                            displayText = matrix.calc_det().ToString();
-                        }
-                        catch (Exception ex)
-                        {
-                            displayText =  $"Error when calculating det: {ex.Message}";;
-                        }
-
-
-                        node.displayText = displayText;
-                        node.clearPreviousText = true;
-                        __result = node;
-                    }
-                }
-                
-            }
-        }
-
-        static void PayOutCredits()
-        {
-            if (_terminal == null)
-            {
-                _terminal = GameObject.Find("TerminalScript").GetComponent<Terminal>();
-            }
-            _terminal.SyncGroupCreditsClientRpc(_terminal.groupCredits + 100,_terminal.numberOfItemsInDropship);
-            logger.LogInfo("Hitcount updated");
         }
     }
 }

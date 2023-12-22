@@ -104,7 +104,7 @@ public class Explosion : NetworkBehaviour, IHittable
 			}
 		}
 	}
-
+	
 	public void SetOffMineAnimation()
 	{
 		hasExploded = true;

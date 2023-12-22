@@ -79,73 +79,7 @@ public class Akbar : MonoBehaviour
 
         }
         
-       // [HarmonyPatch(typeof(GameController))]
-        [HarmonyPatch("HandleButtonPress")]
-        public static class CustomButtonPressPatch
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                if (Input.GetButtonDown("CustomButton"))
-                {
-                    // Your custom functionality here
-                    Debug.Log("Custom button pressed!");
-                }
-            }
-        }
     }
-    
-
-  
-   /*
-   [HarmonyPatch(typeof(Landmine))]
-   internal class LandmineSkips
-   {
-       
-       [HarmonyPrefix]
-       [HarmonyPatch("Update")]
-       static bool UpdateSkip()
-       {
-           if (ExplosionPatch.spawnExplosionTriggred)
-           {
-               // This statement will be called before the original method.
-               // Returning false will skip the execution of the original method.
-               return false;
-           }
-           
-           return true;
-       }
-       
-       [HarmonyPrefix]
-       [HarmonyPatch(nameof(Landmine.SetOffMineAnimation))]
-       static bool SetOffMineAnimationSkip(ref Landmine __instance)
-       {
-           if (ExplosionPatch.spawnExplosionTriggred)
-           {
-               __instance.hasExploded = true;
-               // This statement will be called before the original method.
-               // Returning false will skip the execution of the original method.
-               return false;
-           }
-           
-           return true;
-       }
-       [HarmonyPrefix]
-       [HarmonyPatch("Start")]
-       static bool startSkip()
-       {
-          
-           if (ExplosionPatch.spawnExplosionTriggred)
-           {
-               // This statement will be called before the original method.
-               // Returning false will skip the execution of the original method.
-               return false;
-           }
-           
-           return true;
-       }
-   }*/
-  
 }
 
 
