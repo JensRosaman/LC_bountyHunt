@@ -10,6 +10,7 @@ using BepInEx;
 using BepInEx.Logging;
 using bountyHunt.misc;
 using HarmonyLib;
+using LethalLib.Modules;
 using Microsoft.CodeAnalysis;
 using Unity.Audio;
 using UnityEngine;
@@ -41,14 +42,22 @@ class EnemySpawnPatch
     [HarmonyPatch(typeof(RoundManager), "LoadNewLevel")]
     private static bool SpecifyEnemySpawn(ref SelectableLevel newLevel)
     {
+        List<SpawnableEnemyWithRarity> enemiesToRemove = new List<SpawnableEnemyWithRarity>();
         foreach (SpawnableEnemyWithRarity enemy in newLevel.Enemies)
         {
-            if ((UnityEngine.Object)(object)enemy.enemyType.enemyPrefab.GetComponent<HoarderBugAI>() != (UnityEngine.Object)null)
+            if (enemy.enemyType.enemyPrefab.GetComponent<HoarderBugAI>() != null)
             {
-                enemy.rarity = 999;
+                
+                enemy.rarity = 100;
                 continue;
             }
-            enemy.rarity = 0;
+
+            enemiesToRemove.Add(enemy);
+            
+        }
+        foreach (SpawnableEnemyWithRarity enemyToRemove in enemiesToRemove)
+        {
+            newLevel.Enemies.Remove(enemyToRemove);
         }
         return true;
     }

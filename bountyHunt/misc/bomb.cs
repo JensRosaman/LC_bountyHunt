@@ -14,22 +14,9 @@ public class Explosion : NetworkBehaviour, IHittable
 	private bool sendingExplosionRPC;
 
 	private RaycastHit hit;
+	
+	
 
-	private RoundManager roundManager;
-
-	private float pressMineDebounceTimer;
-
-	private bool localPlayerOnMine;
-
-	private void Start()
-	{
-		
-	}
-
-	private void Update()
-	{
-		
-	}
 	
 
 	[ServerRpc(RequireOwnership = false)]

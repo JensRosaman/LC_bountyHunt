@@ -1,7 +1,8 @@
 ﻿using System.Reflection;
 using BepInEx;
+using bountyHunt.misc;
 using HarmonyLib;
-
+using bountyHunt.Patches;
 
 namespace bountyHunt
 {
@@ -23,6 +24,7 @@ namespace bountyHunt
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             
             Harmony harmony = new Harmony(modGUID);
+            
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             /*harmony.PatchAll(typeof(BountyHuntBase));
             harmony.PatchAll(typeof(Patches.Patches.PaymentPatch));

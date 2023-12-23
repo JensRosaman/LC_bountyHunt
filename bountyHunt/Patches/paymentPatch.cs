@@ -38,8 +38,8 @@ namespace bountyHunt.Patches
             Terminal terminal = GameObject.Find("TerminalScript").GetComponent<Terminal>();
             terminal.groupCredits = newCredits;
         }
-    }*/
-    
+    }*/ 
+    [HarmonyPatch]
    internal class Patches
     {
         private static int hitCount { get; set; }
@@ -51,9 +51,10 @@ namespace bountyHunt.Patches
         static Patches()
         {
             TerminalAPI.AddNewCommand("calcdet",calcDet);
-            TerminalAPI.AddNewCommand("payCreds",payCreds);
+            TerminalAPI.AddNewCommand("paycreds",payCreds);
         }
-
+        
+        
         public static TerminalNode calcDet(string[] words)
         {
             TerminalNode node = ScriptableObject.CreateInstance<TerminalNode>();
@@ -113,6 +114,18 @@ namespace bountyHunt.Patches
                 
                 TerminalAPI.AddCredits(creditMultiplier * hitCount);
                 
+            }
+        }
+        
+        [HarmonyPatch(typeof(RoundManager))]
+        internal class AddCommands
+        {
+            [HarmonyPrefix]
+            [HarmonyPatch(nameof(RoundManager.LoadNewLevel))]
+            private static void PrefixHitEnemy()
+            {
+                TerminalAPI.AddNewCommand("calcdet",calcDet);
+                TerminalAPI.AddNewCommand("paycreds",payCreds);                
             }
         }
         

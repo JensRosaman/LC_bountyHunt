@@ -48,6 +48,10 @@ public class TerminalAPI
         {
             logger.LogError("Command already added");
         }
+        else
+        {
+            logger.LogInfo(commandTable.Count.ToString());
+        }
     }
 
    public static void RemoveCommand(string command)
@@ -64,28 +68,36 @@ public class TerminalAPI
     [HarmonyPatch(typeof(Terminal))]
     class ParsePatch
     {
-        [HarmonyPrefix]
+        /*[HarmonyPrefix]
         [HarmonyPatch("ParsePlayerSentence")]
         private static void charLimitPatch(ref TerminalNode __instance)
         {
             __instance.maxCharactersToType = maxCharactersToType;
-        }
-        [HarmonyPostfix]
+        }*/
+        
+        [HarmonyPrefix]
         [HarmonyPatch("ParsePlayerSentence")]
-        private static void CustomParser(ref Terminal __instance, ref TerminalNode __result)
+        private static bool CustomParser(ref Terminal __instance, ref TerminalNode __result)
         {
+            logger.LogInfo(commandTable.Count.ToString());
+            logger.LogInfo("patching parse");
             string text = __instance.screenText.text.Substring(__instance.screenText.text.Length - __instance.textAdded); // gets the substring of the text added textAdded is just the lenght
             words = text.Split(' ');
             if (words.Length == 0)
             {
-                return;
+                return true;
             }
-            if (commandTable.ContainsKey(words[0]))
+            if (commandTable.ContainsKey(words[0].ToLower()))
             {
                node = commandTable[words[0]](words);
                node.clearPreviousText = true;
+               logger.LogInfo("changing node");
+               node.maxCharactersToType = maxCharactersToType;
                __result = node;
+               return false;
             }
+
+            return true;
         }
     }
 }

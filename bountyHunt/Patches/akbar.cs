@@ -5,7 +5,6 @@ using HarmonyLib;
 using UnityEngine;
 using bountyHunt.misc;
 using System.Reflection;
-using UnityEngine;
 namespace bountyHunt.Patches;
 
 public class Akbar : MonoBehaviour
