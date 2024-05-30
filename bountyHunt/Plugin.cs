@@ -1,12 +1,9 @@
 ﻿using System.Reflection;
 using BepInEx;
-using bountyHunt.misc;
 using HarmonyLib;
-using bountyHunt.Patches;
 
 namespace bountyHunt
 {
-    
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class BountyHuntBase : BaseUnityPlugin
     {
